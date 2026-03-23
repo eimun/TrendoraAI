@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { API_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Activity, TrendingUp, Bookmark, CheckCircle2, ChevronDown, Globe, Clock, Filter, BarChart3, Zap } from 'lucide-react';
 
 /* ───────── Constants ───────── */
@@ -403,8 +403,8 @@ function TrendRow({ trend, index }) {
                     onClick={handleBookmark}
                     disabled={isBookmarked}
                     className={`p-2 rounded-full transition-all ${isBookmarked
-                            ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 cursor-not-allowed'
-                            : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'
+                        ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'
                         }`}
                     title={isBookmarked ? "Saved" : "Bookmark"}
                 >
