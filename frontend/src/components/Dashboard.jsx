@@ -5,11 +5,12 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, TrendingUp, Bookmark, CheckCircle2 } from 'lucide-react';
+import { Activity, TrendingUp, Bookmark, CheckCircle2, ChevronDown, Globe, Clock, Filter, BarChart3 } from 'lucide-react';
 
 function Dashboard() {
     const [niches] = useState(['tech', 'finance', 'lifestyle', 'health']);
     const [selectedNiche, setSelectedNiche] = useState('tech');
+    const [sortBy, setSortBy] = useState('relevance');
     const [trends, setTrends] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -71,24 +72,58 @@ function Dashboard() {
                         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Trending Topics Dashboard</h1>
                     </motion.div>
 
-                    {/* Niche Selector */}
+                    {/* Filter Bar */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="mb-6 flex flex-wrap gap-4"
+                        className="mb-8 flex flex-wrap gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700"
                     >
-                        {niches.map(niche => (
-                            <button
-                                key={niche}
-                                onClick={() => setSelectedNiche(niche)}
-                                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-sm ${selectedNiche === niche
-                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/30 shadow-lg scale-105'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                    }`}
+                        {/* Location (Mock) */}
+                        <div className="relative flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                            <Globe size={16} className="text-gray-400" />
+                            <span>United States</span>
+                            <ChevronDown size={14} className="ml-2 text-gray-400" />
+                        </div>
+
+                        {/* Time Range (Mock) */}
+                        <div className="relative flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                            <Clock size={16} className="text-gray-400" />
+                            <span>Past 24 hours</span>
+                            <ChevronDown size={14} className="ml-2 text-gray-400" />
+                        </div>
+
+                        {/* Category (Actual functionality) */}
+                        <div className="relative flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg text-purple-700 dark:text-purple-300 font-bold cursor-pointer hover:bg-purple-100 transition-colors">
+                            <Filter size={16} className="text-purple-500" />
+                            <select
+                                className="bg-transparent outline-none cursor-pointer appearance-none pr-6"
+                                value={selectedNiche}
+                                onChange={(e) => setSelectedNiche(e.target.value)}
                             >
-                                {niche.charAt(0).toUpperCase() + niche.slice(1)}
-                            </button>
-                        ))}
+                                <option value="tech">Tech & AI</option>
+                                <option value="finance">Finance</option>
+                                <option value="health">Health</option>
+                                <option value="lifestyle">Lifestyle</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 text-purple-500 pointer-events-none" />
+                        </div>
+
+                        <div className="flex-grow"></div>
+
+                        {/* Sort By (Actual functionality) */}
+                        <div className="relative flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium cursor-pointer hover:bg-gray-100 transition-colors">
+                            <span className="text-gray-500 text-sm">Sort by</span>
+                            <BarChart3 size={16} className="text-gray-400 ml-1" />
+                            <select
+                                className="bg-transparent outline-none cursor-pointer appearance-none font-bold pr-6"
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                            >
+                                <option value="relevance">Relevance</option>
+                                <option value="volume">Search Volume</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 text-gray-400 pointer-events-none" />
+                        </div>
                     </motion.div>
 
 
@@ -131,7 +166,10 @@ function Dashboard() {
                             }}
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         >
-                            {trends.map((trend, index) => (
+                            {[...trends].sort((a, b) => {
+                                if (sortBy === 'volume') return (b.volume || 0) - (a.volume || 0);
+                                return 0; // Default: relevance/original order
+                            }).map((trend, index) => (
                                 <TrendCard key={index} trend={trend} />
                             ))}
                         </motion.div>
