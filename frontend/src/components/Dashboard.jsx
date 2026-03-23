@@ -43,30 +43,34 @@ const TREND_STATUS = [
 ];
 
 /* ───────── Dropdown Component ───────── */
-function FilterDropdown({ icon: Icon, label, value, options, onChange, accent }) {
-    const bgClass = accent
-        ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
-        : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700';
-    const textClass = accent
-        ? 'text-purple-700 dark:text-purple-300'
-        : 'text-gray-700 dark:text-gray-300';
-    const iconClass = accent ? 'text-purple-500' : 'text-gray-400';
-
+function FilterDropdown({ icon: Icon, value, options, onChange, accent }) {
     return (
-        <div className={`relative flex items-center gap-2 px-4 py-2.5 border rounded-lg font-medium cursor-pointer hover:shadow-sm transition-all ${bgClass} ${textClass}`}>
-            <Icon size={16} className={iconClass} />
+        <div className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold
+            cursor-pointer transition-all duration-200 hover:shadow-md
+            ${accent
+                ? 'bg-purple-600 text-white shadow-purple-500/20 shadow-sm'
+                : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500'
+            }`}
+        >
+            <Icon size={15} className={accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-300'} />
             <select
-                className="bg-transparent outline-none cursor-pointer appearance-none pr-5 font-semibold text-sm"
+                className={`bg-transparent outline-none cursor-pointer appearance-none pr-4 font-semibold text-sm
+                    ${accent ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
+                style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
             >
                 {options.map(opt => (
-                    <option key={opt.value || opt.code} value={opt.value || opt.code}>
+                    <option
+                        key={opt.value || opt.code}
+                        value={opt.value || opt.code}
+                        className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    >
                         {opt.label}
                     </option>
                 ))}
             </select>
-            <ChevronDown size={14} className={`absolute right-3 pointer-events-none ${iconClass}`} />
+            <ChevronDown size={13} className={`absolute right-3 pointer-events-none ${accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-400'}`} />
         </div>
     );
 }
@@ -171,7 +175,6 @@ function Dashboard() {
                     >
                         <FilterDropdown
                             icon={Globe}
-                            label="Location"
                             value={geo}
                             options={LOCATIONS}
                             onChange={setGeo}
@@ -179,7 +182,6 @@ function Dashboard() {
 
                         <FilterDropdown
                             icon={Clock}
-                            label="Time"
                             value="24h"
                             options={[{ value: '24h', label: 'Past 24 hours' }]}
                             onChange={() => { }}
@@ -187,7 +189,6 @@ function Dashboard() {
 
                         <FilterDropdown
                             icon={Filter}
-                            label="Category"
                             value={category}
                             options={CATEGORIES}
                             onChange={setCategory}
@@ -196,7 +197,6 @@ function Dashboard() {
 
                         <FilterDropdown
                             icon={Zap}
-                            label="Status"
                             value={trendStatus}
                             options={TREND_STATUS}
                             onChange={setTrendStatus}
@@ -206,7 +206,6 @@ function Dashboard() {
 
                         <FilterDropdown
                             icon={BarChart3}
-                            label="Sort by"
                             value={sortBy}
                             options={SORT_OPTIONS}
                             onChange={setSortBy}

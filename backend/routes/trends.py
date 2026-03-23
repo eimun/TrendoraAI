@@ -12,16 +12,7 @@ def fetch_trends():
         niche = data.get('niche', 'tech')
         geo = data.get('geo', 'US')
         
-        # Check cache first
-        cached = get_cached_trends(niche, max_age_hours=2)
-        
-        if cached:
-            return jsonify({
-                "trends": cached,
-                "source": "cache"
-            })
-        
-        # Fetch fresh data
+        # Always fetch fresh RSS data so geo/category changes work instantly
         trends = fetch_trends_for_niche(niche, geo=geo)
         
         if trends:
