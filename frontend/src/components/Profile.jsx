@@ -17,7 +17,7 @@ function Profile() {
     const fetchProfile = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/auth/profile`, {
+            const res = await axios.get(`${API_URL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProfile({ email: res.data.email, default_niche: res.data.default_niche });
@@ -33,7 +33,7 @@ function Profile() {
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/auth/preferences`, {
+            await axios.put(`${API_URL}/api/auth/preferences`, {
                 default_niche: profile.default_niche
             }, {
                 headers: { Authorization: `Bearer ${token}` }

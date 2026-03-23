@@ -18,7 +18,7 @@ function SavedTrends() {
     const fetchSavedTrends = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/bookmarks/`, {
+            const res = await axios.get(`${API_URL}/api/bookmarks/`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrends(res.data.trends);
@@ -33,7 +33,7 @@ function SavedTrends() {
         if (!window.confirm('Are you sure you want to delete this specific trend locally?')) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/bookmarks/${id}`, {
+            await axios.delete(`${API_URL}/api/bookmarks/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrends(trends.filter(t => t.id !== id));
@@ -46,7 +46,7 @@ function SavedTrends() {
     const handleAddNote = async (trendId) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`${API_URL}/notes/${trendId}`, {
+            const res = await axios.post(`${API_URL}/api/notes/${trendId}`, {
                 note_text: 'New note...'
             }, { headers: { Authorization: `Bearer ${token}` } });
 
@@ -66,7 +66,7 @@ function SavedTrends() {
     const handleUpdateNote = async (trendId, noteId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/notes/${noteId}`, {
+            await axios.put(`${API_URL}/api/notes/${noteId}`, {
                 note_text: noteDraft
             }, { headers: { Authorization: `Bearer ${token}` } });
 
@@ -87,7 +87,7 @@ function SavedTrends() {
     const handleDeleteNote = async (trendId, noteId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/notes/${noteId}`, {
+            await axios.delete(`${API_URL}/api/notes/${noteId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrends(trends.map(t => {

@@ -33,7 +33,7 @@ function Dashboard() {
     const checkPreferenceAndFetch = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/auth/profile`, {
+            const res = await axios.get(`${API_URL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.default_niche) {
@@ -150,7 +150,7 @@ function TrendCard({ trend }) {
         e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/bookmarks/`, {
+            await axios.post(`${API_URL}/api/bookmarks/`, {
                 keyword: trend.keyword,
                 volume: trend.volume || 1000,
                 velocity: trend.velocity || 'normal'
