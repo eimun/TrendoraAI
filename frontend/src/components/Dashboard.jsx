@@ -42,35 +42,70 @@ const TREND_STATUS = [
     { value: 'rising', label: '📈 Rising only' },
 ];
 
-/* ───────── Dropdown Component ───────── */
+/* ───────── Dropdown Component (Custom UI) ───────── */
 function FilterDropdown({ icon: Icon, value, options, onChange, accent }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Check click outside
+    useEffect(() => {
+        const handleClickOutside = () => setIsOpen(false);
+        if (isOpen) {
+            document.addEventListener('click', handleClickOutside);
+        }
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [isOpen]);
+
+    const activeOption = options.find(o => (o.value || o.code) === value) || options[0];
+
     return (
-        <div className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold
-            cursor-pointer transition-all duration-200 hover:shadow-md
-            ${accent
-                ? 'bg-purple-600 text-white shadow-purple-500/20 shadow-sm'
-                : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500'
-            }`}
-        >
-            <Icon size={15} className={accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-300'} />
-            <select
-                className={`bg-transparent outline-none cursor-pointer appearance-none pr-4 font-semibold text-sm
-                    ${accent ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
+        <div className="relative inline-block text-left" onClick={(e) => e.stopPropagation()}>
+            <div
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold
+                    cursor-pointer transition-all duration-200
+                    ${accent
+                        ? 'bg-purple-600 text-white shadow-purple-500/20 shadow-sm'
+                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    }`}
             >
-                {options.map(opt => (
-                    <option
-                        key={opt.value || opt.code}
-                        value={opt.value || opt.code}
-                        className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                <Icon size={15} className={accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-400'} />
+                <span>{activeOption?.label}</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-400'}`} />
+            </div>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 overflow-hidden"
                     >
-                        {opt.label}
-                    </option>
-                ))}
-            </select>
-            <ChevronDown size={13} className={`absolute right-3 pointer-events-none ${accent ? 'text-purple-200' : 'text-gray-400 dark:text-gray-400'}`} />
+                        {options.map((opt) => {
+                            const val = opt.value || opt.code;
+                            const isSelected = val === value;
+                            return (
+                                <div
+                                    key={val}
+                                    onClick={() => {
+                                        onChange(val);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors
+                                        ${isSelected
+                                            ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-bold'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                                        }`}
+                                >
+                                    <span>{opt.label}</span>
+                                    {isSelected && <CheckCircle2 size={14} className="text-purple-600 dark:text-purple-400" />}
+                                </div>
+                            );
+                        })}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

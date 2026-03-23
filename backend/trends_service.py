@@ -82,7 +82,7 @@ def get_fallback_trends(niche, geo='US'):
             except:
                 numeric_traffic = random.randint(10000, 500000)
                 
-            velocity = 'rising_fast' if numeric_traffic > 50000 else 'rising'
+            velocity = 'rising_fast' if numeric_traffic > 10000 else 'rising'
             
             live_trends.append({
                 'keyword': title,
