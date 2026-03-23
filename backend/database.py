@@ -3,7 +3,8 @@ from psycopg2.extras import RealDictCursor
 import os
 
 def get_db_connection():
-    conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+    # Enforce sslmode=require for local connections to Render DBs
+    conn = psycopg2.connect(os.getenv('DATABASE_URL'), sslmode='require')
     return conn
 
 def init_db():
