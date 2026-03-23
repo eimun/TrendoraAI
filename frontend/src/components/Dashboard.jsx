@@ -29,7 +29,31 @@ function Dashboard() {
         setLoading(false);
     };
 
+    // Check preference
+    const checkPreferenceAndFetch = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/auth/profile`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data.default_niche) {
+                setSelectedNiche(res.data.default_niche);
+                fetchTrends(res.data.default_niche);
+                return;
+            }
+        } catch (e) {
+            console.error('Failed to get preferences, using default tech', e);
+        }
+        fetchTrends('tech');
+    };
+
     useEffect(() => {
+        checkPreferenceAndFetch();
+    }, []);
+
+    useEffect(() => {
+        // This useEffect will run when selectedNiche changes,
+        // including the initial change from checkPreferenceAndFetch
         fetchTrends(selectedNiche);
     }, [selectedNiche]);
 

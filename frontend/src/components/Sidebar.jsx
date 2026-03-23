@@ -1,14 +1,15 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
-    Moon, Sun, LogOut, ChevronLeft, ChevronRight
+    Moon, Sun, LogOut, ChevronLeft, ChevronRight, Bookmark, User
 } from 'lucide-react';
 
 const navItems = [
     { label: 'Core', type: 'heading' },
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: Bookmark, label: 'Saved Trends', path: '/saved-trends' },
 ];
 
 function Sidebar() {
@@ -125,6 +126,35 @@ function Sidebar() {
 
             {/* Bottom Actions */}
             <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1">
+                <NavLink
+                    to="/profile"
+                    className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${isActive
+                            ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300'
+                        }`
+                    }
+                    title="Profile"
+                >
+                    <User size={20} className="shrink-0" />
+                    <AnimatePresence>
+                        {!collapsed && (
+                            <motion.span
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="whitespace-nowrap overflow-hidden"
+                            >
+                                Profile
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
+                    {collapsed && (
+                        <div className="absolute left-full ml-3 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                            Profile
+                        </div>
+                    )}
+                </NavLink>
                 <button
                     onClick={toggleTheme}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
