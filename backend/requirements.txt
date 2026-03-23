@@ -1,0 +1,15 @@
+flask
+flask-cors
+python-dotenv
+psycopg2-binary
+pytrends
+google-genai
+bcrypt
+PyJWT
+google-api-python-client
+youtube-search-python
+pandas
+scikit-learn
+numpy
+schedule
+gunicorn
