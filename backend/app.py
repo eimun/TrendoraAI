@@ -22,10 +22,14 @@ add_ojt_features()
 from auth import auth_bp
 from routes.trends import trends_bp
 from routes.virality import virality_bp
+from routes.bookmarks import bookmarks_bp
+from routes.notes import notes_bp
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(trends_bp, url_prefix='/api/trends')
 app.register_blueprint(virality_bp, url_prefix='/api/virality')
+app.register_blueprint(bookmarks_bp, url_prefix='/api/bookmarks')
+app.register_blueprint(notes_bp, url_prefix='/api/notes')
 
 @app.route('/api/health')
 def health_check():

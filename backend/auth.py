@@ -73,6 +73,64 @@ def login():
     
     return jsonify({"token": token, "user_id": user_id}), 200
 
+@auth_bp.route('/profile', methods=['GET'])
+def get_profile():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"error": "Token missing"}), 401
+    
+    try:
+        token = token.split(" ")[1]
+        data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = data['user_id']
+    except:
+        return jsonify({"error": "Invalid token"}), 401
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, email, default_niche FROM users WHERE id = %s", (user_id,))
+    user = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "id": user[0],
+        "email": user[1],
+        "default_niche": user[2] or 'tech'
+    }), 200
+
+@auth_bp.route('/preferences', methods=['PUT'])
+def update_preferences():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"error": "Token missing"}), 401
+    
+    try:
+        token = token.split(" ")[1]
+        data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = data['user_id']
+    except:
+        return jsonify({"error": "Invalid token"}), 401
+
+    niche = request.json.get('default_niche')
+    if not niche:
+        return jsonify({"error": "default_niche is required"}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE users SET default_niche = %s WHERE id = %s",
+        (niche, user_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Preferences updated successfully", "default_niche": niche}), 200
+
 # Middleware to verify JWT
 def token_required(f):
     from functools import wraps
