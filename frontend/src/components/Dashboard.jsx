@@ -258,14 +258,27 @@ function Dashboard() {
                                 hidden: { opacity: 0 },
                                 show: {
                                     opacity: 1,
-                                    transition: { staggerChildren: 0.08 }
+                                    transition: { staggerChildren: 0.05 }
                                 }
                             }}
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
                         >
-                            {displayedTrends.map((trend, index) => (
-                                <TrendCard key={`${trend.keyword}-${index}`} trend={trend} />
-                            ))}
+                            {/* Table Header */}
+                            <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50/50 dark:bg-gray-800/50">
+                                <div className="col-span-1 text-center">#</div>
+                                <div className="col-span-4 lg:col-span-3">Trends</div>
+                                <div className="col-span-2 text-right">Search Volume</div>
+                                <div className="col-span-2 text-center hidden md:block">Score</div>
+                                <div className="col-span-3 text-center hidden lg:block">Trend Breakdown</div>
+                                <div className="col-span-1 text-right"></div>
+                            </div>
+
+                            {/* Table List */}
+                            <div className="flex flex-col">
+                                {displayedTrends.map((trend, index) => (
+                                    <TrendRow key={`${trend.keyword}-${index}`} trend={trend} index={index + 1} />
+                                ))}
+                            </div>
                         </motion.div>
                     )}
                 </div>
@@ -274,8 +287,8 @@ function Dashboard() {
     );
 }
 
-/* ───────── TrendCard ───────── */
-function TrendCard({ trend }) {
+/* ───────── TrendRow (List View) ───────── */
+function TrendRow({ trend, index }) {
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
 
@@ -291,12 +304,12 @@ function TrendCard({ trend }) {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setIsBookmarked(true);
-            setToastMsg('Trend bookmarked!');
-            setTimeout(() => setToastMsg(''), 3000);
+            setToastMsg('Saved!');
+            setTimeout(() => setToastMsg(''), 2000);
         } catch (error) {
             console.error('Failed to bookmark trend:', error);
             setToastMsg('Already saved!');
-            setTimeout(() => setToastMsg(''), 3000);
+            setTimeout(() => setToastMsg(''), 2000);
         }
     };
 
@@ -310,111 +323,107 @@ function TrendCard({ trend }) {
         { name: 'Day 7', volume: trend.velocity === 'rising_fast' ? trend.volume * 2.1 : trend.volume },
     ];
 
-    const getScoreColor = (score) => {
-        if (score >= 80) return 'from-green-400 to-green-600';
-        if (score >= 60) return 'from-blue-400 to-blue-600';
-        if (score >= 40) return 'from-yellow-400 to-yellow-600';
-        return 'from-gray-400 to-gray-600';
-    };
-
     const isHot = trend.velocity === 'rising_fast' || trend.velocity === 'breakout';
+
+    // Formatting volume e.g. 50000 -> 50K+
+    const formatVolume = (vol) => {
+        if (!vol) return 'N/A';
+        if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}m+`;
+        if (vol >= 1000) return `${Math.floor(vol / 1000)}k+`;
+        return `${vol}+`;
+    };
 
     return (
         <motion.div
             variants={{
-                hidden: { opacity: 0, y: 20 },
-                show: { opacity: 1, y: 0 }
+                hidden: { opacity: 0, x: -10 },
+                show: { opacity: 1, x: 0 }
             }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all relative overflow-hidden flex flex-col justify-between border border-gray-100 dark:border-gray-700 group"
+            className="group grid grid-cols-12 gap-4 items-center p-4 border-b border-gray-100 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors last:border-0"
         >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-            <div className="flex justify-between items-start mb-4 pr-16">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight capitalize">{trend.keyword}</h3>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isHot
-                    ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
-                    : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
-                    }`}>
-                    {isHot ? '🔥 Hot' : '📈 Rising'}
-                </span>
+            {/* Rank / Index */}
+            <div className="col-span-1 text-center font-semibold text-gray-400 dark:text-gray-500">
+                {index}
             </div>
 
-            {/* Virality Score Badge */}
-            <div className="absolute top-5 right-5 flex flex-col items-center">
-                <div className={`bg-gradient-to-br ${getScoreColor(trend.virality_score)} text-white w-12 h-12 flex items-center justify-center rounded-full font-bold shadow-md`}>
-                    {trend.virality_score || 0}
+            {/* Keyword & Status Component */}
+            <div className="col-span-4 lg:col-span-3 pr-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize mb-1 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                    {trend.keyword}
+                </h3>
+                {isHot && (
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400">
+                        <TrendingUp size={12} /> Active
+                    </span>
+                )}
+            </div>
+
+            {/* Search Volume */}
+            <div className="col-span-2 text-right">
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatVolume(trend.volume)}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-nowrap">
+                    ↑ {isHot ? '1,000%' : '100%'}
                 </div>
             </div>
 
-            <div className="mb-4 flex-grow">
-                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-3">
-                    Volume: <span className="text-gray-900 dark:text-white font-bold">{trend.volume?.toLocaleString()}</span> searches
-                </p>
-
-                {/* Mini Chart */}
-                <div className="h-24 w-full -ml-2 mb-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData}>
-                            <defs>
-                                <linearGradient id={`colorVol-${trend.keyword}`} x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={isHot ? "#ef4444" : "#8b5cf6"} stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor={isHot ? "#ef4444" : "#8b5cf6"} stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <Tooltip
-                                contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.8)', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                itemStyle={{ color: '#fff' }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="volume"
-                                stroke={isHot ? "#ef4444" : "#8b5cf6"}
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill={`url(#colorVol-${trend.keyword})`}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+            {/* Virality Score */}
+            <div className="col-span-2 hidden md:flex flex-col items-center justify-center">
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    {trend.virality_score || 0} / 100
                 </div>
-
-                {/* Score Breakdown Bar */}
                 {trend.virality_score > 0 && (
-                    <div className="mt-2">
-                        <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2 overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${trend.virality_score}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className={`h-full bg-gradient-to-r ${getScoreColor(trend.virality_score)}`}
-                            />
-                        </div>
+                    <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-1 mt-1.5 overflow-hidden">
+                        <div
+                            className={`h-full ${isHot ? 'bg-red-500' : 'bg-green-500'}`}
+                            style={{ width: `${trend.virality_score}%` }}
+                        />
                     </div>
                 )}
             </div>
 
-            <button
-                onClick={handleBookmark}
-                disabled={isBookmarked}
-                className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl transition-colors font-medium ${isBookmarked ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 cursor-not-allowed' : 'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 group-hover:shadow-md'}`}
-            >
-                {isBookmarked ? <CheckCircle2 size={18} /> : <Bookmark size={18} />}
-                {isBookmarked ? 'Saved to Bookmarks' : 'Bookmark Trend'}
-            </button>
+            {/* Mini Sparkline Chart */}
+            <div className="col-span-3 hidden lg:block h-12 w-full px-2">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                        <Area
+                            type="monotone"
+                            dataKey="volume"
+                            stroke={isHot ? "#ef4444" : "#10b981"}
+                            strokeWidth={2}
+                            fill="transparent"
+                            isAnimationActive={false}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
 
-            <AnimatePresence>
-                {toastMsg && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-xl text-sm font-semibold flex items-center gap-2 whitespace-nowrap z-50"
-                    >
-                        <CheckCircle2 size={16} className="text-emerald-400" />
-                        {toastMsg}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Action Buttons */}
+            <div className="col-span-2 lg:col-span-1 flex justify-end items-center relative">
+                <button
+                    onClick={handleBookmark}
+                    disabled={isBookmarked}
+                    className={`p-2 rounded-full transition-all ${isBookmarked
+                            ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 cursor-not-allowed'
+                            : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30'
+                        }`}
+                    title={isBookmarked ? "Saved" : "Bookmark"}
+                >
+                    {isBookmarked ? <CheckCircle2 size={20} /> : <Bookmark size={20} />}
+                </button>
+
+                <AnimatePresence>
+                    {toastMsg && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="absolute right-12 bottom-0 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1.5 rounded shadow-lg text-xs font-bold whitespace-nowrap z-10"
+                        >
+                            {toastMsg}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </motion.div>
     );
 }
