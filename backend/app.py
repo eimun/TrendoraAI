@@ -8,15 +8,19 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Auto-create tables on startup
-from database import init_db
-init_db()
+# Prevent DB connection failures from crashing the entire app on startup
+try:
+    # Auto-create tables on startup
+    from database import init_db
+    init_db()
 
-# Run migrations
-from migrations.add_virality_score import migrate as add_virality
-from migrations.add_ojt_features import migrate as add_ojt_features
-add_virality()
-add_ojt_features()
+    # Run migrations
+    from migrations.add_virality_score import migrate as add_virality
+    from migrations.add_ojt_features import migrate as add_ojt_features
+    add_virality()
+    add_ojt_features()
+except Exception as e:
+    print(f"⚠️ Database initialization failed on startup: {e}")
 
 # Register blueprints
 from auth import auth_bp
