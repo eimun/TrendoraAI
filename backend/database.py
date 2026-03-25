@@ -62,6 +62,29 @@ def init_db():
         )
     ''')
     
+    # Saved trends (bookmarks) table
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS saved_trends (
+            id SERIAL PRIMARY KEY,
+            user_id INT REFERENCES users(id) ON DELETE CASCADE,
+            keyword VARCHAR(255) NOT NULL,
+            volume INT DEFAULT 0,
+            velocity VARCHAR(50) DEFAULT 'normal',
+            created_at TIMESTAMP DEFAULT NOW()
+        )
+    ''')
+
+    # Trend notes table
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS trend_notes (
+            id SERIAL PRIMARY KEY,
+            saved_trend_id INT REFERENCES saved_trends(id) ON DELETE CASCADE,
+            note_text TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        )
+    ''')
+
     conn.commit()
     cur.close()
     conn.close()

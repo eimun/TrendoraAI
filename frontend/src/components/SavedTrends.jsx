@@ -10,6 +10,8 @@ function SavedTrends() {
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [noteDraft, setNoteDraft] = useState('');
     const [message, setMessage] = useState('');
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+    const [errorMsg, setErrorMsg] = useState('');
 
     useEffect(() => {
         fetchSavedTrends();
@@ -30,16 +32,20 @@ function SavedTrends() {
     };
 
     const handleDeleteTrend = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this specific trend locally?')) return;
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`${API_URL}/api/bookmarks/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrends(trends.filter(t => t.id !== id));
+            setConfirmDeleteId(null);
             showMsg('Trend deleted');
         } catch (e) {
             console.error('Delete failed:', e);
+            setConfirmDeleteId(null);
+            const msg = e.response?.data?.error || 'Failed to delete trend';
+            setErrorMsg(msg);
+            setTimeout(() => setErrorMsg(''), 4000);
         }
     };
 
@@ -128,6 +134,11 @@ function SavedTrends() {
                         <CheckCircle2 size={16} /> {message}
                     </motion.div>
                 )}
+                {errorMsg && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-red-500 bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-lg font-semibold text-sm">
+                        ⚠️ {errorMsg}
+                    </motion.div>
+                )}
             </div>
 
             {trends.length === 0 ? (
@@ -161,9 +172,23 @@ function SavedTrends() {
                                     <button onClick={() => handleAddNote(trend.id)} className="p-2 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors" title="Add Note">
                                         <MessageSquarePlus size={20} />
                                     </button>
-                                    <button onClick={() => handleDeleteTrend(trend.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete Trend">
-                                        <Trash2 size={20} />
-                                    </button>
+                                    {confirmDeleteId === trend.id ? (
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-xs text-gray-500 dark:text-gray-400 mr-1">Delete?</span>
+                                            <button
+                                                onClick={() => handleDeleteTrend(trend.id)}
+                                                className="px-2 py-1 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                            >Yes</button>
+                                            <button
+                                                onClick={() => setConfirmDeleteId(null)}
+                                                className="px-2 py-1 text-xs font-bold bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300"
+                                            >No</button>
+                                        </div>
+                                    ) : (
+                                        <button onClick={() => setConfirmDeleteId(trend.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" title="Delete Trend">
+                                            <Trash2 size={20} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
