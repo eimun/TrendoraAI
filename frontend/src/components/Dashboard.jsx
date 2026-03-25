@@ -118,6 +118,7 @@ function Dashboard() {
     const [trendStatus, setTrendStatus] = useState('all');
     const [allTrends, setAllTrends] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [savedKeywords, setSavedKeywords] = useState(new Set());
 
     const fetchTrends = async (niche, geoCode) => {
         setLoading(true);
@@ -135,11 +136,25 @@ function Dashboard() {
         setLoading(false);
     };
 
-    // On mount: check user preference
+    // On mount: load saved bookmarks + check user preference
     useEffect(() => {
         const init = async () => {
+            const token = localStorage.getItem('token');
+
+            // Pre-load saved keywords so bookmark icons show correct state
             try {
-                const token = localStorage.getItem('token');
+                const savedRes = await axios.get(`${API_URL}/api/bookmarks/`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const keywords = new Set(
+                    (savedRes.data.trends || []).map(t => t.keyword.toLowerCase())
+                );
+                setSavedKeywords(keywords);
+            } catch (e) {
+                console.error('Failed to load saved keywords', e);
+            }
+
+            try {
                 const res = await axios.get(`${API_URL}/api/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -311,7 +326,13 @@ function Dashboard() {
                             {/* Table List */}
                             <div className="flex flex-col">
                                 {displayedTrends.map((trend, index) => (
-                                    <TrendRow key={`${trend.keyword}-${index}`} trend={trend} index={index + 1} />
+                                    <TrendRow
+                                        key={`${trend.keyword}-${index}`}
+                                        trend={trend}
+                                        index={index + 1}
+                                        initialBookmarked={savedKeywords.has((trend.keyword || '').toLowerCase())}
+                                        onBookmarkChange={(keyword) => setSavedKeywords(prev => new Set([...prev, keyword.toLowerCase()]))}
+                                    />
                                 ))}
                             </div>
                         </motion.div>
@@ -323,8 +344,8 @@ function Dashboard() {
 }
 
 /* ───────── TrendRow (List View) ───────── */
-function TrendRow({ trend, index }) {
-    const [isBookmarked, setIsBookmarked] = useState(false);
+function TrendRow({ trend, index, initialBookmarked = false, onBookmarkChange }) {
+    const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
     const [toastMsg, setToastMsg] = useState('');
 
     const handleBookmark = async (e) => {
@@ -339,11 +360,17 @@ function TrendRow({ trend, index }) {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setIsBookmarked(true);
+            if (onBookmarkChange) onBookmarkChange(trend.keyword);
             setToastMsg('Saved!');
             setTimeout(() => setToastMsg(''), 2000);
         } catch (error) {
-            console.error('Failed to bookmark trend:', error);
-            setToastMsg('Already saved!');
+            // If already saved (400), still mark it as bookmarked visually
+            if (error.response?.status === 400) {
+                setIsBookmarked(true);
+                setToastMsg('Already saved!');
+            } else {
+                setToastMsg('Failed to save');
+            }
             setTimeout(() => setToastMsg(''), 2000);
         }
     };
