@@ -1,8 +1,10 @@
 import psycopg2
 import os
+import sys
 
-def get_db_connection():
-    return psycopg2.connect(os.getenv('DATABASE_URL'))
+# Import the centralized get_db_connection which has sslmode='require' handling
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from database import get_db_connection
 
 def migrate():
     print("Running OJT Features migration...")
