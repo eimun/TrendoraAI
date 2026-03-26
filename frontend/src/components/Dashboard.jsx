@@ -209,7 +209,7 @@ function Dashboard() {
         // 'relevance' keeps original order
 
         return filtered;
-    }, [allTrends, trendStatus, sortBy]);
+    }, [allTrends, trendStatus, sortBy, searchQuery]);
 
     const currentLocation = LOCATIONS.find(l => l.code === geo)?.label || geo;
 
