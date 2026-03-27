@@ -214,14 +214,15 @@ function Dashboard() {
         }
 
         // Sort
-        if (sortBy === 'volume_desc') {
+        if (sortBy === 'relevance') {
+            filtered.sort((a, b) => (b.virality_score || 0) - (a.virality_score || 0) || (b.volume || 0) - (a.volume || 0));
+        } else if (sortBy === 'volume_desc') {
             filtered.sort((a, b) => (b.volume || 0) - (a.volume || 0));
         } else if (sortBy === 'volume_asc') {
             filtered.sort((a, b) => (a.volume || 0) - (b.volume || 0));
         } else if (sortBy === 'title') {
             filtered.sort((a, b) => (a.keyword || '').localeCompare(b.keyword || ''));
         }
-        // 'relevance' keeps original order
 
         return filtered;
     }, [allTrends, trendStatus, sortBy, searchQuery]);
@@ -365,7 +366,7 @@ function Dashboard() {
                             <div className="flex flex-col">
                                 {displayedTrends.map((trend, index) => (
                                     <TrendRow
-                                        key={`${trend.keyword}-${index}`}
+                                        key={trend.keyword}
                                         trend={trend}
                                         index={index + 1}
                                         initialBookmarked={savedKeywords.has((trend.keyword || '').toLowerCase())}
