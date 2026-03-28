@@ -12,9 +12,10 @@ def fetch_trends():
         data = request.json
         niche = data.get('niche', 'tech')
         geo = data.get('geo', 'US')
+        timeframe = data.get('timeframe', 'now 1-d')
         
         # Always fetch fresh RSS data so geo/category changes work instantly
-        trends = fetch_trends_for_niche(niche, geo=geo)
+        trends = fetch_trends_for_niche(niche, geo=geo, timeframe=timeframe)
         
         # Attach virality score so frontend UI components have access to it
         for t in trends:

@@ -43,6 +43,12 @@ const TREND_STATUS = [
     { value: 'rising', label: '📈 Rising only' },
 ];
 
+const TIMEFRAMES = [
+    { value: 'now 1-d', label: 'Past 24 hours' },
+    { value: 'now 7-d', label: 'Past 7 days' },
+    { value: 'today 1-m', label: 'Past 30 days' },
+];
+
 /* ───────── Dropdown Component (Custom UI) ───────── */
 function FilterDropdown({ icon: Icon, value, options, onChange, accent }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -123,9 +129,10 @@ function Dashboard() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTrend, setSelectedTrend] = useState(null);
     const [trendsCache, setTrendsCache] = useState({});
+    const [timeframe, setTimeframe] = useState('now 1-d');
 
-    const fetchTrends = async (niche, geoCode) => {
-        const cacheKey = `${niche}-${geoCode}`;
+    const fetchTrends = async (niche, geoCode, tf = timeframe) => {
+        const cacheKey = `${niche}-${geoCode}-${tf}`;
         
         if (trendsCache[cacheKey]) {
             setAllTrends(trendsCache[cacheKey]);
@@ -137,7 +144,7 @@ function Dashboard() {
             const token = localStorage.getItem('token');
             const response = await axios.post(
                 `${API_URL}/api/trends/fetch`,
-                { niche, geo: geoCode },
+                { niche, geo: geoCode, timeframe: tf },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setAllTrends(response.data.trends);
@@ -150,8 +157,8 @@ function Dashboard() {
 
     // Force refresh button bypasses cache
     const handleRefresh = () => {
-        setTrendsCache(prev => ({ ...prev, [`${category}-${geo}`]: null }));
-        fetchTrends(category, geo);
+        setTrendsCache(prev => ({ ...prev, [`${category}-${geo}-${timeframe}`]: null }));
+        fetchTrends(category, geo, timeframe);
     };
 
     // On mount: load saved bookmarks + check user preference
@@ -190,11 +197,11 @@ function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Re-fetch when geo or category changes
+    // Re-fetch when geo, category, or timeframe changes
     useEffect(() => {
-        fetchTrends(category, geo);
+        fetchTrends(category, geo, timeframe);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [geo, category]);
+    }, [geo, category, timeframe]);
 
     /* ─── Client-side filter + sort ─── */
     const displayedTrends = useMemo(() => {
@@ -257,9 +264,9 @@ function Dashboard() {
 
                         <FilterDropdown
                             icon={Clock}
-                            value="24h"
-                            options={[{ value: '24h', label: 'Past 24 hours' }]}
-                            onChange={() => { }}
+                            value={timeframe}
+                            options={TIMEFRAMES}
+                            onChange={setTimeframe}
                         />
 
                         <FilterDropdown

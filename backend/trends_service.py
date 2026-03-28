@@ -13,7 +13,7 @@ NICHE_KEYWORDS = {
     'health': ['nutrition', 'mental health', 'workout', 'sleep', 'meditation']
 }
 
-def fetch_trends_for_niche(niche, geo='US'):
+def fetch_trends_for_niche(niche, geo='US', timeframe='now 7-d'):
     """Fetch trending topics for a specific niche"""
     
     keywords = NICHE_KEYWORDS.get(niche.lower(), ['trending'])
@@ -23,7 +23,7 @@ def fetch_trends_for_niche(niche, geo='US'):
     for keyword in keywords:
         try:
             # Build payload
-            pytrends.build_payload([keyword], timeframe='now 7-d', geo=geo)
+            pytrends.build_payload([keyword], timeframe=timeframe, geo=geo)
             
             # Get interest over time
             interest = pytrends.interest_over_time()
@@ -50,7 +50,7 @@ def fetch_trends_for_niche(niche, geo='US'):
     
     # If pytrends returned nothing (rate limited / blocked), use fallback data
     if not trends_data:
-        print(f"⚠️ pytrends returned no data for {niche}, using fallback trends")
+        print(f"⚠️ pytrends returned no data for {niche} ({timeframe}), using fallback trends")
         trends_data = get_fallback_trends(niche, geo=geo)
     
     return trends_data
