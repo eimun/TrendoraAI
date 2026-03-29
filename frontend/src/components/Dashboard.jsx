@@ -130,6 +130,7 @@ function Dashboard() {
     const [selectedTrend, setSelectedTrend] = useState(null);
     const [trendsCache, setTrendsCache] = useState({});
     const [timeframe, setTimeframe] = useState('now 1-d');
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     const fetchTrends = async (niche, geoCode, tf = timeframe) => {
         const cacheKey = `${niche}-${geoCode}-${tf}`;
@@ -149,6 +150,7 @@ function Dashboard() {
             );
             setAllTrends(response.data.trends);
             setTrendsCache(prev => ({ ...prev, [cacheKey]: response.data.trends }));
+            setLastUpdated(new Date());
         } catch (error) {
             console.error('Failed to fetch trends');
         }
@@ -308,14 +310,20 @@ function Dashboard() {
                         />
                     </motion.div>
 
-                    {/* Stats bar */}
-                    <div className="mb-6 flex items-center justify-between">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Showing <span className="font-bold text-gray-900 dark:text-white">{displayedTrends.length}</span> trends from <span className="font-bold text-gray-900 dark:text-white">{currentLocation}</span>
-                        </p>
+                    <div className="mb-6 flex items-center justify-between bg-white dark:bg-gray-800/50 px-4 py-3 rounded-lg border border-gray-100 dark:border-gray-700/50">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Showing <span className="font-bold text-gray-900 dark:text-white">{displayedTrends.length}</span> trends from <span className="font-bold text-gray-900 dark:text-white">{currentLocation}</span>
+                            </p>
+                            {lastUpdated && (
+                                <span className="hidden sm:inline text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-semibold flex items-center gap-1">
+                                    <Clock size={10} /> Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                        </div>
                         <button
                             onClick={handleRefresh}
-                            className="text-sm text-purple-600 dark:text-purple-400 hover:underline font-medium"
+                            className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-bold transition-colors flex items-center gap-1"
                         >
                             🔄 Refresh
                         </button>
@@ -327,37 +335,14 @@ function Dashboard() {
                             <motion.div
                                 animate={{ rotate: 360 }}
                                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                            >
-                                <Activity className="w-12 h-12 text-purple-600 dark:text-purple-400" />
-                            </motion.div>
+                                className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full"
+                            />
                         </div>
-                    ) : displayedTrends.length === 0 ? (
+                    ) : displayedTrends.length > 0 ? (
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-12 text-center text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700"
-                        >
-                            <p className="text-2xl font-medium mb-2 text-gray-900 dark:text-gray-100">No trends found</p>
-                            <p className="mb-6">Try selecting a different category or change the status filter.</p>
-                            <button
-                                onClick={() => fetchTrends(category, geo)}
-                                className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow-lg shadow-purple-500/20 font-medium"
-                            >
-                                Retry Fetching
-                            </button>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            initial="hidden"
-                            animate="show"
-                            variants={{
-                                hidden: { opacity: 0 },
-                                show: {
-                                    opacity: 1,
-                                    transition: { staggerChildren: 0.05 }
-                                }
-                            }}
-                            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="bg-white dark:bg-gray-900/40 rounded-3xl shadow-xl shadow-purple-500/5 border border-white/20 dark:border-gray-800/50 overflow-hidden backdrop-blur-xl"
                         >
                             {/* Table Header */}
                             <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50/50 dark:bg-gray-800/50">
@@ -382,6 +367,20 @@ function Dashboard() {
                                     />
                                 ))}
                             </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800/30 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700"
+                        >
+                            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                <Search className="text-gray-400" size={30} />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No trends found</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-center max-w-xs">
+                                We couldn't find any trends matching your current filters or search query.
+                            </p>
                         </motion.div>
                     )}
                 </div>
