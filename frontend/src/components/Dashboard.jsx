@@ -4,7 +4,7 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
-import { Activity, TrendingUp, Bookmark, CheckCircle2, ChevronDown, Globe, Clock, Filter, BarChart3, Zap, Search } from 'lucide-react';
+import { TrendingUp, Bookmark, CheckCircle2, ChevronDown, Globe, Clock, Filter, BarChart3, Zap, Search } from 'lucide-react';
 import TrendModal from './TrendModal';
 
 /* ───────── Constants ───────── */
