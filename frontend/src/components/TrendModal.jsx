@@ -12,10 +12,6 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
     const [aiSummary, setAiSummary] = useState('');
     const [isAiLoading, setIsAiLoading] = useState(true);
 
-    if (!trend) return null;
-
-    const isHot = trend.velocity === 'rising_fast' || trend.velocity === 'breakout';
-
     useEffect(() => {
         if (!trend) return;
         
@@ -41,6 +37,10 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
 
         fetchAISummary();
     }, [trend]);
+
+    if (!trend) return null;
+
+    const isHot = trend.velocity === 'rising_fast' || trend.velocity === 'breakout';
 
     const handleOverlayClick = (e) => {
         if (e.target.id === 'modal-overlay') onClose();
