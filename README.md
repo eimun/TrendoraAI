@@ -49,6 +49,13 @@ cp .env.example .env  # Fill in your keys
 python app.py
 ```
 
+### Environment Variables (.env)
+You must configure the following keys in your backend `.env` file (or your hosting provider like Render):
+- `DATABASE_URL`: PostgreSQL connection string
+- `GEMINI_API_KEY`: Google AI Studio key (required for AI summaries)
+- `YOUTUBE_API_KEY`: YouTube Data API v3 key
+- `SECRET_KEY`: Flask session secret key
+
 ### Frontend
 ```bash
 cd frontend
