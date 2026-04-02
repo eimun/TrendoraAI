@@ -53,6 +53,7 @@ python app.py
 You must configure the following keys in your backend `.env` file (or your hosting provider like Render):
 - `DATABASE_URL`: PostgreSQL connection string
 - `GEMINI_API_KEY`: Google AI Studio key (required for AI summaries)
+  - *Note: If you receive a "We couldn't generate an AI summary" or 429 error, ensure your Google Cloud project has billing enabled, as some regions strictly disable the free tier limit.*
 - `YOUTUBE_API_KEY`: YouTube Data API v3 key
 - `SECRET_KEY`: Flask session secret key
 
