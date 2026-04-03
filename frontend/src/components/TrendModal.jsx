@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus } from 'lucide-react';
+import { X, ExternalLink, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
@@ -12,31 +12,37 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
     const [aiSummary, setAiSummary] = useState('');
     const [isAiLoading, setIsAiLoading] = useState(true);
 
-    useEffect(() => {
+    const fetchAISummary = useCallback(async () => {
         if (!trend) return;
-        
-        const fetchAISummary = async () => {
-            setIsAiLoading(true);
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.post(`${API_URL}/api/trends/analyze`, {
-                    keyword: trend.keyword,
-                    niche: trend.niche,
-                    volume: trend.volume,
-                    velocity: trend.velocity
-                }, { headers: { Authorization: `Bearer ${token}` } });
-                
-                setAiSummary(response.data.summary);
-            } catch (error) {
-                console.error("Failed to fetch AI summary:", error);
-                setAiSummary("We couldn't generate an AI summary for this trend at the moment. Please try again later.");
-            } finally {
-                setIsAiLoading(false);
-            }
-        };
-
-        fetchAISummary();
+        setIsAiLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post(`${API_URL}/api/trends/analyze`, {
+                keyword: trend.keyword,
+                niche: trend.niche,
+                volume: trend.volume,
+                velocity: trend.velocity
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            
+            setAiSummary(response.data.summary);
+        } catch (error) {
+            console.error("Failed to fetch AI summary:", error);
+            setAiSummary("We couldn't generate an AI summary for this trend at the moment. Please try again later.");
+        } finally {
+            setIsAiLoading(false);
+        }
     }, [trend]);
+
+    useEffect(() => {
+        fetchAISummary();
+    }, [fetchAISummary]);
+
+    const handleCopySummary = () => {
+        if (!aiSummary) return;
+        navigator.clipboard.writeText(aiSummary);
+        setToastMsg('Copied to clipboard!');
+        setTimeout(() => setToastMsg(''), 2000);
+    };
 
     if (!trend) return null;
 
@@ -135,7 +141,7 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                             <Sparkles size={18} className="text-purple-500" /> AI Trend Summary
                         </h3>
-                        <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 p-5 rounded-2xl min-h-[100px] relative overflow-hidden">
+                        <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 p-5 rounded-2xl min-h-[100px] relative group/ai overflow-hidden">
                             {isAiLoading ? (
                                 <div className="space-y-2 animate-pulse">
                                     <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-full"></div>
@@ -143,13 +149,34 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                                     <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-4/5"></div>
                                 </div>
                             ) : (
-                                <motion.p 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm"
-                                >
-                                    {aiSummary}
-                                </motion.p>
+                                <>
+                                    <motion.p 
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm"
+                                    >
+                                        {aiSummary}
+                                    </motion.p>
+                                    
+                                    {aiSummary && !aiSummary.includes("couldn't generate") && (
+                                        <button 
+                                            onClick={handleCopySummary}
+                                            className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 opacity-0 group-hover/ai:opacity-100 transition-all border border-purple-100/50 dark:border-purple-800/30"
+                                            title="Copy Summary"
+                                        >
+                                            <Copy size={14} />
+                                        </button>
+                                    )}
+
+                                    {aiSummary && aiSummary.includes("couldn't generate") && (
+                                        <button 
+                                            onClick={fetchAISummary}
+                                            className="mt-3 flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                                        >
+                                            <RefreshCw size={12} /> Try Again
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
