@@ -22,12 +22,13 @@ def generate_trend_summary(keyword, niche, volume, velocity):
         return "AI analysis is currently unavailable because the Groq API key is missing."
 
     prompt = f"""
-    You are an expert data analyst and trend forecaster. 
     A topic just started trending on the internet: "{keyword}".
-    It is categorized under "{niche}", has an estimated {volume} searches, and its momentum is "{velocity}".
+    It is categorized under "{niche}" with {volume} searches and a {velocity} momentum.
     
-    In a concise, engaging way (exactly 2-3 sentences), explain *why* this might be trending right now 
-    and what this data indicates about current consumer/audience interest. 
+    In 2-3 engaging sentences, explain why "{keyword}" might be trending today based on current events or its general appeal. 
+    Provide specific, creative, and unique context about this subject. 
+    CRITICAL: Avoid generic robotic phrases like "The recent surge in search volume indicates a growing interest in..." or "This highlights a shift towards...". 
+    Write as if you are a witty internet culture analyst explaining the hype to a friend. 
     Do not use any markdown formatting, asterisks, or bullet points. Just plain text.
     """
 
