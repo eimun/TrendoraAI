@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy } from 'lucide-react';
+import { X, ExternalLink, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useState, useEffect, useCallback } from 'react';
@@ -182,13 +182,22 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                     </div>
 
                     <div className="space-y-3">
-                        <a 
-                            href={`https://trends.google.com/trends/explore?q=${encodeURIComponent(trend.keyword)}`}
-                            target="_blank" rel="noopener noreferrer"
-                            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold transition-colors"
-                        >
-                            <ExternalLink size={18} /> View on Google Trends
-                        </a>
+                        <div className="flex gap-3">
+                            <a 
+                                href={`https://trends.google.com/trends/explore?q=${encodeURIComponent(trend.keyword)}`}
+                                target="_blank" rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold transition-colors text-sm"
+                            >
+                                <TrendingUp size={16} /> Google Trends
+                            </a>
+                            <a 
+                                href={`https://www.google.com/search?q=${encodeURIComponent(trend.keyword)}`}
+                                target="_blank" rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-400 rounded-xl font-bold transition-colors text-sm"
+                            >
+                                <Search size={16} /> Web Search
+                            </a>
+                        </div>
                         
                         <div className="flex gap-3">
                             <button 
