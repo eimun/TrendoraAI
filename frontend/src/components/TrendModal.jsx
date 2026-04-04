@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search } from 'lucide-react';
+import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useState, useEffect, useCallback } from 'react';
