@@ -83,7 +83,8 @@ def get_profile():
         token = token.split(" ")[1]
         data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         user_id = data['user_id']
-    except:
+    except Exception as e:
+        print(f"Token decode error: {e}")
         return jsonify({"error": "Invalid token"}), 401
 
     conn = get_db_connection()
@@ -118,7 +119,8 @@ def update_preferences():
         token = token.split(" ")[1]
         data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         user_id = data['user_id']
-    except:
+    except Exception as e:
+        print(f"Token decode error: {e}")
         return jsonify({"error": "Invalid token"}), 401
 
     niche = request.json.get('default_niche')
@@ -150,7 +152,8 @@ def token_required(f):
             token = token.split(" ")[1]  # Remove "Bearer "
             data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             request.user_id = data['user_id']
-        except:
+        except Exception as e:
+            print(f"Middleware token decode error: {e}")
             return jsonify({"error": "Invalid token"}), 401
         
         return f(*args, **kwargs)
