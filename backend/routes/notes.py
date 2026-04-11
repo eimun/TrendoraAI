@@ -47,6 +47,11 @@ def add_note(saved_trend_id):
         if 'conn' in locals() and conn:
             conn.rollback()
         return jsonify({"error": str(e)}), 500
+    finally:
+        if 'cur' in locals() and cur:
+            cur.close()
+        if 'conn' in locals() and conn:
+            conn.close()
 
 @notes_bp.route('/<int:note_id>', methods=['PUT', 'DELETE'])
 @token_required
