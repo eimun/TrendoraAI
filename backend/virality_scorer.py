@@ -40,7 +40,7 @@ def calculate_virality_score(trend):
     # Competition (0-30 points)
     # Mocking competition for OJT simple project
     keyword = trend.get('keyword', '')
-    competitor_count = random.randint(5, 500)
+    competitor_count = random.Random(keyword).randint(5, 500)
     
     if competitor_count < 10:
         score += 30  # Almost no competition!
