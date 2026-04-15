@@ -17,6 +17,10 @@ def register_error_handlers(app):
     def not_found(error):
         return jsonify({"error": "Not Found", "message": "Resource not found"}), 404
 
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({"error": "Method Not Allowed", "message": "The method is not allowed for the requested URL."}), 405
+
     @app.errorhandler(429)
     def rate_limited(error):
         return jsonify({"error": "Too Many Requests", "message": "Rate limit exceeded"}), 429
