@@ -49,3 +49,48 @@ def generate_trend_analysis(keyword, niche, volume, velocity):
     except Exception as e:
         print(f"❌ Error generating AI summary for {keyword}: {e}")
         return {"summary": "We couldn't generate an AI summary for this trend at the moment. Please try again later.", "ideas": [], "keywords": []}
+
+
+def generate_chat_response(messages, trend_context):
+    """
+    Given an array of past messages and live trend data, generates a 
+    conversational response from Llama 3.
+    """
+    if not client:
+        return "My AI brain is currently offline. Please configure the Groq API key."
+
+    # Format the live trends into a system prompt
+    # Only take the top 15 trends to avoid token explosion
+    compact_trends = [{"keyword": t.get("keyword"), "volume": t.get("volume"), "niche": t.get("niche")} for t in trend_context[:15]]
+    
+    system_prompt = f"""
+    You are Trendora AI, an incredibly smart, fast, and witty internet culture and data analyst.
+    Your job is to answer the user's questions about trends.
+    
+    Here is the live trend data currently visible on the user's dashboard right now (Top 15):
+    {json.dumps(compact_trends)}
+    
+    CRITICAL INSTRUCTIONS:
+    1. If the user asks "what is trending right now" or "give me ideas", look at the JSON data above to answer.
+    2. Keep your answers relatively concise, highly engaging, and use proper spacing/paragraphs.
+    3. You can use markdown like bold text or bullet points.
+    4. Act like an expert creator giving advice.
+    """
+
+    formatted_messages = [{"role": "system", "content": system_prompt}]
+    for msg in messages:
+        formatted_messages.append({
+            "role": msg.get("role", "user"),
+            "content": msg.get("content", "")
+        })
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=formatted_messages,
+            model="llama-3.1-8b-instant",
+            temperature=0.7,
+        )
+        return chat_completion.choices[0].message.content
+    except Exception as e:
+        print(f"❌ Error in chat generation: {e}")
+        return "I seem to have lost my connection to the server. Try asking again in a moment!"

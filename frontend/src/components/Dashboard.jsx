@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Bookmark, CheckCircle2, ChevronDown, Globe, Clock, Filter, BarChart3, Zap, Search } from 'lucide-react';
 import TrendModal from './TrendModal';
+import AIChatBot from './AIChatBot';
 
 /* ───────── Constants ───────── */
 const LOCATIONS = [
@@ -429,6 +430,8 @@ function Dashboard() {
                     />
                 )}
             </AnimatePresence>
+            
+            <AIChatBot allTrends={displayedTrends} />
         </div>
     );
 }
