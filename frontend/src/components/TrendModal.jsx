@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
-import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search, Zap, Lightbulb, Hash } from 'lucide-react';
+import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, Copy, Search, Zap, Lightbulb, Hash } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useState, useEffect, useCallback } from 'react';
