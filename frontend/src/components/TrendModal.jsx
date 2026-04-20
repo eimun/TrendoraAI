@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search, Zap } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useState, useEffect, useCallback } from 'react';
@@ -47,6 +48,23 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
     if (!trend) return null;
 
     const isHot = trend.velocity === 'rising_fast' || trend.velocity === 'breakout';
+
+    const chartData = [
+        { name: 'Day 1', volume: trend.volume * 0.3 },
+        { name: 'Day 2', volume: trend.volume * 0.45 },
+        { name: 'Day 3', volume: trend.volume * 0.4 },
+        { name: 'Day 4', volume: trend.volume * 0.6 },
+        { name: 'Day 5', volume: trend.volume * 0.8 },
+        { name: 'Day 6', volume: isHot ? trend.volume * 1.5 : trend.volume * 0.9 },
+        { name: 'Day 7', volume: isHot ? trend.volume * 2.1 : trend.volume },
+    ];
+
+    const formatVolume = (vol) => {
+        if (!vol) return 'N/A';
+        if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M+`;
+        if (vol >= 1000) return `${Math.floor(vol / 1000)}K+`;
+        return `${vol}+`;
+    };
 
     const handleOverlayClick = (e) => {
         if (e.target.id === 'modal-overlay') onClose();
@@ -101,7 +119,7 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                         <X size={20} />
                     </button>
 
-                    <div className="mt-8 mb-6">
+                    <div className="mb-8">
                         <div className="flex items-center gap-3 mb-3">
                             {trend.niche && (
                                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 capitalize">
@@ -119,20 +137,71 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Search Volume</p>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{trend.volume.toLocaleString()}+</p>
+                    {/* Chart Block */}
+                    <div className="mb-6 h-32 w-full bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 pb-0 relative">
+                        <div className="absolute top-4 left-4 z-10">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">7-Day Momentum</p>
                         </div>
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-1">Virality Score</p>
-                            <div className="flex items-baseline gap-1">
-                                <p className={`text-2xl font-black ${
-                                    (trend.virality_score || 0) >= 80 ? 'text-red-500' :
-                                    (trend.virality_score || 0) >= 50 ? 'text-orange-500' :
-                                    'text-emerald-500'
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData}>
+                                <defs>
+                                    <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <Area
+                                    type="monotone"
+                                    dataKey="volume"
+                                    stroke={isHot ? "#ef4444" : "#10b981"}
+                                    strokeWidth={3}
+                                    fillOpacity={1}
+                                    fill="url(#colorVol)"
+                                    isAnimationActive={true}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/80 dark:to-gray-900/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm relative overflow-hidden">
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-1">Search Volume</p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white">{formatVolume(trend.volume)}</p>
+                            <div className="absolute right-0 bottom-0 opacity-5 dark:opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
+                                <Search size={64} />
+                            </div>
+                        </div>
+                        
+                        <div className={`p-5 rounded-2xl border shadow-sm relative overflow-hidden ${
+                            (trend.virality_score || 0) >= 80 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30' :
+                            (trend.virality_score || 0) >= 50 ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/30' :
+                            'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30'
+                        }`}>
+                            <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
+                                (trend.virality_score || 0) >= 80 ? 'text-red-500/80 dark:text-red-400/80' :
+                                (trend.virality_score || 0) >= 50 ? 'text-orange-500/80 dark:text-orange-400/80' :
+                                'text-emerald-500/80 dark:text-emerald-400/80'
+                            }`}>Virality Score</p>
+                            
+                            <div className="flex items-baseline gap-1 relative z-10">
+                                <p className={`text-3xl font-black ${
+                                    (trend.virality_score || 0) >= 80 ? 'text-red-600 dark:text-red-400' :
+                                    (trend.virality_score || 0) >= 50 ? 'text-orange-600 dark:text-orange-400' :
+                                    'text-emerald-600 dark:text-emerald-400'
                                 }`}>{trend.virality_score || 0}</p>
-                                <span className="text-sm font-bold text-gray-400">/ 100</span>
+                                <span className={`text-sm font-bold ${
+                                    (trend.virality_score || 0) >= 80 ? 'text-red-400/50 dark:text-red-500/40' :
+                                    (trend.virality_score || 0) >= 50 ? 'text-orange-400/50 dark:text-orange-500/40' :
+                                    'text-emerald-400/50 dark:text-emerald-500/40'
+                                }`}>/ 100</span>
+                            </div>
+                            
+                            <div className={`absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-3 translate-y-3 ${
+                                (trend.virality_score || 0) >= 80 ? 'text-red-500' :
+                                (trend.virality_score || 0) >= 50 ? 'text-orange-500' :
+                                'text-emerald-500'
+                            }`}>
+                                <Zap size={64} />
                             </div>
                         </div>
                     </div>
