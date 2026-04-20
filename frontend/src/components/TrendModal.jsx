@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
-import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search, Zap } from 'lucide-react';
+import { X, Bookmark, CheckCircle2, TrendingUp, Sparkles, MessageSquarePlus, RefreshCw, Copy, Search, Zap, Lightbulb, Hash } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../config';
 import { useState, useEffect, useCallback } from 'react';
@@ -10,8 +10,9 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
-    const [aiSummary, setAiSummary] = useState('');
+    const [aiAnalysis, setAiAnalysis] = useState(null);
     const [isAiLoading, setIsAiLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('overview');
 
     const fetchAISummary = useCallback(async () => {
         if (!trend) return;
@@ -25,10 +26,10 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                 velocity: trend.velocity
             }, { headers: { Authorization: `Bearer ${token}` } });
             
-            setAiSummary(response.data.summary);
+            setAiAnalysis(response.data);
         } catch (error) {
-            console.error("Failed to fetch AI summary:", error);
-            setAiSummary("We couldn't generate an AI summary for this trend at the moment. Please try again later.");
+            console.error("Failed to fetch AI analysis:", error);
+            setAiAnalysis({ summary: "We couldn't generate an AI summary for this trend at the moment.", ideas: [], keywords: [] });
         } finally {
             setIsAiLoading(false);
         }
@@ -39,8 +40,8 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
     }, [fetchAISummary]);
 
     const handleCopySummary = () => {
-        if (!aiSummary) return;
-        navigator.clipboard.writeText(aiSummary);
+        if (!aiAnalysis?.summary) return;
+        navigator.clipboard.writeText(aiAnalysis.summary);
         setToastMsg('Copied to clipboard!');
         setTimeout(() => setToastMsg(''), 2000);
     };
@@ -100,26 +101,24 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
         if (!isBookmarked) {
             await handleSave();
         }
-        // Navigate to saved trends to let them write the note
         navigate('/saved-trends');
     };
 
     return (
-        <div id="modal-overlay" onClick={handleOverlayClick} className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm">
+        <div id="modal-overlay" onClick={handleOverlayClick} className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
             <motion.div 
-                initial={{ x: '100%', opacity: 0 }} 
-                animate={{ x: 0, opacity: 1 }} 
-                exit={{ x: '100%', opacity: 0 }} 
+                initial={{ scale: 0.95, opacity: 0 }} 
+                animate={{ scale: 1, opacity: 1 }} 
+                exit={{ scale: 0.95, opacity: 0 }} 
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="relative w-full max-w-md h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden"
+                className="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10"
             >
-                {/* Header Container inside scroll area */}
                 <div className="flex-1 overflow-y-auto p-6 md:p-8">
                     <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors z-10">
                         <X size={20} />
                     </button>
 
-                    <div className="mb-8">
+                    <div className="mb-6">
                         <div className="flex items-center gap-3 mb-3">
                             {trend.niche && (
                                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 capitalize">
@@ -137,120 +136,157 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                         </h2>
                     </div>
 
-                    {/* Chart Block */}
-                    <div className="mb-6 h-32 w-full bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 pb-0 relative">
-                        <div className="absolute top-4 left-4 z-10">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">7-Day Momentum</p>
-                        </div>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
-                                <defs>
-                                    <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <Area
-                                    type="monotone"
-                                    dataKey="volume"
-                                    stroke={isHot ? "#ef4444" : "#10b981"}
-                                    strokeWidth={3}
-                                    fillOpacity={1}
-                                    fill="url(#colorVol)"
-                                    isAnimationActive={true}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                    <div className="flex border-b border-gray-100 dark:border-gray-800 mb-6">
+                        <button 
+                            onClick={() => setActiveTab('overview')}
+                            className={`flex-1 py-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'overview' ? 'border-purple-600 text-purple-600 dark:text-purple-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        >
+                            Data Overview
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('ideas')}
+                            className={`flex-1 py-3 text-sm font-bold transition-colors border-b-2 flex justify-center items-center gap-2 ${activeTab === 'ideas' ? 'border-purple-600 text-purple-600 dark:text-purple-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                        >
+                            <Sparkles size={16} /> AI Toolkit
+                        </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/80 dark:to-gray-900/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm relative overflow-hidden">
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-1">Search Volume</p>
-                            <p className="text-3xl font-black text-gray-900 dark:text-white">{formatVolume(trend.volume)}</p>
-                            <div className="absolute right-0 bottom-0 opacity-5 dark:opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
-                                <Search size={64} />
+                    {activeTab === 'overview' && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                            <div className="h-32 w-full bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 pb-0 relative">
+                                <div className="absolute top-4 left-4 z-10">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">7-Day Momentum</p>
+                                </div>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData}>
+                                        <defs>
+                                            <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor={isHot ? "#ef4444" : "#10b981"} stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <Area
+                                            type="monotone"
+                                            dataKey="volume"
+                                            stroke={isHot ? "#ef4444" : "#10b981"}
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#colorVol)"
+                                            isAnimationActive={true}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
                             </div>
-                        </div>
-                        
-                        <div className={`p-5 rounded-2xl border shadow-sm relative overflow-hidden ${
-                            (trend.virality_score || 0) >= 80 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30' :
-                            (trend.virality_score || 0) >= 50 ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/30' :
-                            'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30'
-                        }`}>
-                            <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
-                                (trend.virality_score || 0) >= 80 ? 'text-red-500/80 dark:text-red-400/80' :
-                                (trend.virality_score || 0) >= 50 ? 'text-orange-500/80 dark:text-orange-400/80' :
-                                'text-emerald-500/80 dark:text-emerald-400/80'
-                            }`}>Virality Score</p>
-                            
-                            <div className="flex items-baseline gap-1 relative z-10">
-                                <p className={`text-3xl font-black ${
-                                    (trend.virality_score || 0) >= 80 ? 'text-red-600 dark:text-red-400' :
-                                    (trend.virality_score || 0) >= 50 ? 'text-orange-600 dark:text-orange-400' :
-                                    'text-emerald-600 dark:text-emerald-400'
-                                }`}>{trend.virality_score || 0}</p>
-                                <span className={`text-sm font-bold ${
-                                    (trend.virality_score || 0) >= 80 ? 'text-red-400/50 dark:text-red-500/40' :
-                                    (trend.virality_score || 0) >= 50 ? 'text-orange-400/50 dark:text-orange-500/40' :
-                                    'text-emerald-400/50 dark:text-emerald-500/40'
-                                }`}>/ 100</span>
-                            </div>
-                            
-                            <div className={`absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-3 translate-y-3 ${
-                                (trend.virality_score || 0) >= 80 ? 'text-red-500' :
-                                (trend.virality_score || 0) >= 50 ? 'text-orange-500' :
-                                'text-emerald-500'
-                            }`}>
-                                <Zap size={64} />
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <Sparkles size={18} className="text-purple-500" /> AI Trend Summary
-                        </h3>
-                        <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 p-5 rounded-2xl min-h-[100px] relative group/ai overflow-hidden">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/80 dark:to-gray-900/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm relative overflow-hidden">
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-1">Search Volume</p>
+                                    <p className="text-3xl font-black text-gray-900 dark:text-white">{formatVolume(trend.volume)}</p>
+                                    <div className="absolute right-0 bottom-0 opacity-5 dark:opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
+                                        <Search size={64} />
+                                    </div>
+                                </div>
+                                <div className={`p-5 rounded-2xl border shadow-sm relative overflow-hidden ${
+                                    (trend.virality_score || 0) >= 80 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30' :
+                                    (trend.virality_score || 0) >= 50 ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/30' :
+                                    'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30'
+                                }`}>
+                                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${
+                                        (trend.virality_score || 0) >= 80 ? 'text-red-500/80 dark:text-red-400/80' :
+                                        (trend.virality_score || 0) >= 50 ? 'text-orange-500/80 dark:text-orange-400/80' :
+                                        'text-emerald-500/80 dark:text-emerald-400/80'
+                                    }`}>Virality Score</p>
+                                    <div className="flex items-baseline gap-1 relative z-10">
+                                        <p className={`text-3xl font-black ${
+                                            (trend.virality_score || 0) >= 80 ? 'text-red-600 dark:text-red-400' :
+                                            (trend.virality_score || 0) >= 50 ? 'text-orange-600 dark:text-orange-400' :
+                                            'text-emerald-600 dark:text-emerald-400'
+                                        }`}>{trend.virality_score || 0}</p>
+                                        <span className={`text-sm font-bold ${
+                                            (trend.virality_score || 0) >= 80 ? 'text-red-400/50 dark:text-red-500/40' :
+                                            (trend.virality_score || 0) >= 50 ? 'text-orange-400/50 dark:text-orange-500/40' :
+                                            'text-emerald-400/50 dark:text-emerald-500/40'
+                                        }`}>/ 100</span>
+                                    </div>
+                                    <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-3 translate-y-3 text-current">
+                                        <Zap size={64} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">AI Context</h3>
+                                <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 p-5 rounded-2xl min-h-[80px] relative group/ai">
+                                    {isAiLoading ? (
+                                        <div className="space-y-2 animate-pulse">
+                                            <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-full"></div>
+                                            <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-11/12"></div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
+                                                {aiAnalysis?.summary || "No summary available."}
+                                            </motion.p>
+                                            {aiAnalysis?.summary && (
+                                                <button onClick={handleCopySummary} className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 opacity-0 group-hover/ai:opacity-100 transition-all border border-purple-100/50 dark:border-purple-800/30" title="Copy Context">
+                                                    <Copy size={14} />
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'ideas' && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                             {isAiLoading ? (
-                                <div className="space-y-2 animate-pulse">
-                                    <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-full"></div>
-                                    <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-11/12"></div>
-                                    <div className="h-4 bg-purple-200/50 dark:bg-purple-800/30 rounded w-4/5"></div>
+                                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                                    <Sparkles className="animate-pulse mb-3" size={32} />
+                                    <p className="text-sm font-bold">Llama 3 is brainstorming ideas...</p>
                                 </div>
                             ) : (
                                 <>
-                                    <motion.p 
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm"
-                                    >
-                                        {aiSummary}
-                                    </motion.p>
-                                    
-                                    {aiSummary && !aiSummary.includes("couldn't generate") && (
-                                        <button 
-                                            onClick={handleCopySummary}
-                                            className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 opacity-0 group-hover/ai:opacity-100 transition-all border border-purple-100/50 dark:border-purple-800/30"
-                                            title="Copy Summary"
-                                        >
-                                            <Copy size={14} />
-                                        </button>
-                                    )}
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                            <Lightbulb size={16} className="text-yellow-500" />
+                                            Content Creation Hooks
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {aiAnalysis?.ideas?.map((idea, idx) => (
+                                                <div key={idx} className="p-4 bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 rounded-xl text-sm text-gray-700 dark:text-gray-300">
+                                                    {idea}
+                                                </div>
+                                            )) || (
+                                                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm text-gray-500 text-center">
+                                                    No ideas generated. Try again later.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
 
-                                    {aiSummary && aiSummary.includes("couldn't generate") && (
-                                        <button 
-                                            onClick={fetchAISummary}
-                                            className="mt-3 flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
-                                        >
-                                            <RefreshCw size={12} /> Try Again
-                                        </button>
-                                    )}
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                            <Hash size={16} className="text-blue-500" />
+                                            Target Keywords
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {aiAnalysis?.keywords?.map((kw, idx) => (
+                                                <span key={idx} className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-sm font-bold border border-blue-100 dark:border-blue-900/30">
+                                                    {kw}
+                                                </span>
+                                            )) || (
+                                                <span className="text-sm text-gray-500">None generated.</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </>
                             )}
-                        </div>
-                    </div>
+                        </motion.div>
+                    )}
 
-                    <div className="space-y-3">
+                    <div className="mt-8 space-y-3">
                         <div className="flex gap-3">
                             <a 
                                 href={`https://trends.google.com/trends/explore?q=${encodeURIComponent(trend.keyword)}`}
@@ -279,7 +315,7 @@ function TrendModal({ trend, isBookmarked, onClose, onBookmarkChange }) {
                                 }`}
                             >
                                 {isBookmarked ? <CheckCircle2 size={18} /> : <Bookmark size={18} />}
-                                {isBookmarked ? 'Saved to Bookmarks' : (saving ? 'Saving...' : 'Save Trend')}
+                                {isBookmarked ? 'Saved' : (saving ? 'Saving...' : 'Bookmark')}
                             </button>
                             
                             <button 

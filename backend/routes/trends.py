@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from auth import token_required
 from trends_service import fetch_trends_for_niche, cache_trends_to_db, get_cached_trends
 from virality_scorer import calculate_virality_score
-from ai_service import generate_trend_summary
+from ai_service import generate_trend_analysis
 
 trends_bp = Blueprint('trends', __name__)
 
@@ -51,11 +51,9 @@ def analyze_trend():
         if not keyword:
             return jsonify({"error": "Keyword is required"}), 400
             
-        summary = generate_trend_summary(keyword, niche, volume, velocity)
+        analysis = generate_trend_analysis(keyword, niche, volume, velocity)
         
-        return jsonify({
-            "summary": summary
-        })
+        return jsonify(analysis)
     except Exception as e:
         print(f"❌ Error in analyze_trend: {e}")
         return jsonify({"error": "Failed to analyze trend"}), 500
