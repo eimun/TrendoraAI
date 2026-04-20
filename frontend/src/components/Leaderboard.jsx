@@ -41,11 +41,13 @@ export default function Leaderboard() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
             <div className="max-w-3xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
-                    <Trophy className="text-yellow-500 w-10 h-10" />
+                <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-2xl">
+                        <Trophy className="text-yellow-500 w-7 h-7" />
+                    </div>
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Weekly Leaderboard</h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Top 10 trends bookmarked by the community in the past 7 days</p>
+                        <h1 className="text-4xl font-black bg-gradient-to-r from-yellow-500 via-orange-400 to-pink-500 bg-clip-text text-transparent leading-tight">Weekly Leaderboard</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">Top 10 trends bookmarked by the community in the past 7 days</p>
                     </div>
                 </motion.div>
 

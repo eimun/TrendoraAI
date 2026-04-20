@@ -249,8 +249,13 @@ function Dashboard() {
                         className="flex flex-col md:flex-row md:items-end gap-3 mb-8 justify-between"
                     >
                         <div className="flex items-center gap-3">
-                            <TrendingUp className="text-purple-600 dark:text-purple-400 w-10 h-10" />
-                            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Trending Topics</h1>
+                            <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-2xl">
+                                <TrendingUp className="text-purple-600 dark:text-purple-400 w-6 h-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-4xl font-black bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent leading-tight">Trending Topics</h1>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">Real-time internet trend intelligence</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm font-bold bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                             <span className="relative flex h-3 w-3">

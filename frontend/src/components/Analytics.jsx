@@ -67,11 +67,13 @@ export default function Analytics() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
             <div className="max-w-4xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-8">
-                    <BarChart3 className="text-purple-500 w-10 h-10" />
+                <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-2xl">
+                        <BarChart3 className="text-purple-500 w-7 h-7" />
+                    </div>
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">My Analytics</h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Your personal Trendora activity and bookmarks breakdown</p>
+                        <h1 className="text-4xl font-black bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 bg-clip-text text-transparent leading-tight">My Analytics</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">Your personal Trendora activity and bookmarks breakdown</p>
                     </div>
                 </motion.div>
 
