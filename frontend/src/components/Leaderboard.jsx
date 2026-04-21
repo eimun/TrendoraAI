@@ -12,7 +12,7 @@ export default function Leaderboard() {
 
     const handleTrendClick = (keyword) => {
         sessionStorage.setItem('dash_searchQuery', keyword);
-        navigate('/');
+        navigate('/dashboard');
     };
 
     useEffect(() => {
