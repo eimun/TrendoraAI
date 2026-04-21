@@ -47,7 +47,7 @@ export default function Leaderboard() {
                     </div>
                     <div>
                         <h1 className="text-4xl font-black bg-gradient-to-r from-yellow-500 via-orange-400 to-pink-500 bg-clip-text text-transparent leading-tight">Weekly Leaderboard</h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">Top 10 trends bookmarked by the community in the past 7 days</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-0.5">Top 10 trends by global search volume in the past 7 days</p>
                     </div>
                 </motion.div>
 

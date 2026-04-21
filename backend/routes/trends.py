@@ -81,21 +81,22 @@ def write_script():
 @trends_bp.route('/leaderboard', methods=['GET'])
 @token_required
 def leaderboard():
-    """Returns the top 10 most bookmarked trends across all users in the past 7 days."""
+    """Returns the top 10 trends by search volume overall, with their save counts."""
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            SELECT keyword, COUNT(*) as saves, AVG(volume) as avg_volume
-            FROM saved_trends
-            WHERE created_at >= NOW() - INTERVAL '7 days'
-            GROUP BY keyword
-            ORDER BY saves DESC
+            SELECT t.keyword, MAX(t.volume) as max_volume, COUNT(s.id) as saves
+            FROM trends t
+            LEFT JOIN saved_trends s ON t.keyword = s.keyword AND s.created_at >= NOW() - INTERVAL '7 days'
+            WHERE t.fetched_at >= NOW() - INTERVAL '7 days'
+            GROUP BY t.keyword
+            ORDER BY max_volume DESC
             LIMIT 10
         """)
         rows = cur.fetchall()
         results = [
-            {"rank": i + 1, "keyword": row[0], "saves": row[1], "avg_volume": int(row[2] or 0)}
+            {"rank": i + 1, "keyword": row[0], "avg_volume": int(row[1] or 0), "saves": row[2]}
             for i, row in enumerate(rows)
         ]
         return jsonify({"leaderboard": results})
