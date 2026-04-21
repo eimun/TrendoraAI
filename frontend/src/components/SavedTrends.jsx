@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Bookmark, TrendingUp, Edit3, Trash2, CheckCircle2, MessageSquarePlus } from 'lucide-react';
 import { API_URL } from '../config';
@@ -12,6 +12,15 @@ function SavedTrends() {
     const [message, setMessage] = useState('');
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [errorMsg, setErrorMsg] = useState('');
+    const textareaRef = useRef(null);
+
+    // Auto-resize the textarea when editing pre-existing notes or typing
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [noteDraft, editingNoteId]);
 
     useEffect(() => {
         fetchSavedTrends();
@@ -230,13 +239,10 @@ function SavedTrends() {
                                                 {editingNoteId === note.id ? (
                                                     <div>
                                                         <textarea
+                                                            ref={textareaRef}
                                                             autoFocus
                                                             value={noteDraft}
-                                                            onChange={(e) => {
-                                                                setNoteDraft(e.target.value);
-                                                                e.target.style.height = 'auto';
-                                                                e.target.style.height = `${e.target.scrollHeight}px`;
-                                                            }}
+                                                            onChange={(e) => setNoteDraft(e.target.value)}
                                                             className="w-full bg-white dark:bg-gray-800 border border-purple-300 dark:border-purple-600 rounded-lg p-4 text-sm focus:ring-2 focus:ring-purple-500 outline-none mb-3 resize-none overflow-hidden leading-relaxed font-mono"
                                                             placeholder="Write your content ideas or paste generated scripts here..."
                                                         />
