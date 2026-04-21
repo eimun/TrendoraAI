@@ -22,6 +22,14 @@ function SavedTrends() {
         }
     }, [noteDraft, editingNoteId]);
 
+    // Move cursor to the end of the text ONLY when opening the editor
+    useEffect(() => {
+        if (textareaRef.current && editingNoteId) {
+            const length = textareaRef.current.value.length;
+            textareaRef.current.setSelectionRange(length, length);
+        }
+    }, [editingNoteId]);
+
     useEffect(() => {
         fetchSavedTrends();
     }, []);
