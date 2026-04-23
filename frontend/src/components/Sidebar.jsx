@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
-    Moon, Sun, LogOut, ChevronLeft, ChevronRight, Bookmark, User, X, Trophy, BarChart3
+    Moon, Sun, LogOut, ChevronLeft, ChevronRight, Bookmark, User, X, Trophy
 } from 'lucide-react';
 
 const navItems = [
