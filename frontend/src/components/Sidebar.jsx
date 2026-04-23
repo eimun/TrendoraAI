@@ -12,7 +12,6 @@ const navItems = [
     { icon: Bookmark, label: 'Saved Trends', path: '/saved-trends' },
     { label: 'Insights', type: 'heading' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
-    { icon: BarChart3, label: 'My Analytics', path: '/analytics' },
 ];
 
 function Sidebar({ mobileOpen, setMobileOpen }) {

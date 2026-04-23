@@ -9,7 +9,6 @@ import Dashboard from './components/Dashboard';
 import AppLayout from './components/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 import Leaderboard from './components/Leaderboard';
-import Analytics from './components/Analytics';
 
 // Global Axios Interceptor for handling 401 Unauthorized errors
 axios.interceptors.response.use(
@@ -39,7 +38,6 @@ function App() {
           <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
           <Route path="/saved-trends" element={<AppLayout><SavedTrends /></AppLayout>} />
           <Route path="/leaderboard" element={<AppLayout><Leaderboard /></AppLayout>} />
-          <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>

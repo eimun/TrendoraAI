@@ -14,7 +14,6 @@ Trendora helps content creators discover trending topics, analyze competitor gap
 ## Features
 - 📊 Real-time trend tracking across niches
 - 🏆 Community Leaderboard for top saved trends
-- 📈 Personal Analytics Dashboard
 - 📝 Saved Trends with AI note generation
 - ✨ AI-powered 60-second video script generation
 - 🎨 Personal writing style training
