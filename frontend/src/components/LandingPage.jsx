@@ -145,9 +145,7 @@ function LandingPage() {
                         <Link to="/login" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:shadow-xl hover:shadow-purple-500/30 transition-all hover:-translate-y-1 flex items-center gap-2">
                             Try for Free <ArrowRight size={18} />
                         </Link>
-                        <button className="border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-xl text-lg font-bold hover:border-purple-400 dark:hover:border-purple-500 transition-all flex items-center gap-2">
-                            <Play size={18} /> Watch Demo
-                        </button>
+
                     </div>
                 </motion.div>
             </section>
