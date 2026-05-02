@@ -5,10 +5,14 @@
 Trendora helps content creators discover trending topics, analyze competitor gaps, and generate viral content using AI.
 
 ## 🚀 Live Demo
-**Link:** (https://trendora-ojt.vercel.app/)
-*To easily test the platform without registering, you can use these demo credentials:*
-- **Email:** `demo@trendora.com`
-- **Password:** `demo123`
+
+🔗 **[Visit Trendora](https://trendora-ojt.vercel.app/)**
+
+To explore the platform without registering, use the demo credentials below:
+
+* **Email:** [demo@trendora.com](mailto:demo@trendora.com)
+* **Password:** demo123
+
 
 ## Tech Stack
 - **Backend**: Python / Flask / PostgreSQL
