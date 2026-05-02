@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
     TrendingUp, Sparkles, BarChart3,
-    ArrowRight, Play, Zap, Shield, Globe,
+    ArrowRight, Zap, Shield, Globe,
     CheckCircle2, ChevronRight, Moon, Sun,
     MessageSquare, Bookmark, Trophy
 } from 'lucide-react';
