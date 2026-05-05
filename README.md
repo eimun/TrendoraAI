@@ -1,10 +1,10 @@
-# Trendora 🚀
+# Trendora 
 
 **AI-Powered Trend Intelligence Platform for Content Creators**
 
 Trendora helps content creators discover trending topics, analyze competitor gaps, and generate viral content using AI.
 
-## 🚀 Live Demo
+## Live Demo
 
 🔗 **[Visit Trendora](https://trendora-ojt.vercel.app/)**
 
