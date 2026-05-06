@@ -182,12 +182,9 @@ def get_fallback_trends(niche, geo='US'):
             filtered = [t for t in live_trends if t['niche'] == niche]
             if filtered:
                 return filtered
-            # If no trends matched the category, return all live trends
-            # with the requested niche label so the user still sees data
-            print(f"⚠️ No live trends matched category '{niche}', returning all trends")
-            for t in live_trends:
-                t['niche'] = niche
-            return live_trends[:10]
+            # If no trends matched the category, return empty list
+            print(f"⚠️ No live trends matched category '{niche}'")
+            return []
         
         return live_trends
         
