@@ -3,17 +3,10 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import { motion } from 'framer-motion';
 import { Trophy, Bookmark, Medal } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export default function Leaderboard() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-
-    const handleTrendClick = (keyword) => {
-        sessionStorage.setItem('dash_searchQuery', keyword);
-        navigate('/dashboard');
-    };
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
@@ -80,11 +73,10 @@ export default function Leaderboard() {
                                     return (
                                         <motion.div
                                             key={item.keyword}
-                                            onClick={() => handleTrendClick(item.keyword)}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.1 }}
-                                            className={`relative flex flex-col items-center p-4 rounded-2xl text-center cursor-pointer hover:scale-105 transition-all bg-gradient-to-b ${podiumColors[trueRank - 1]} ${i === 1 ? 'shadow-xl scale-105' : 'shadow-md opacity-90'}`}
+                                            className={`relative flex flex-col items-center p-4 rounded-2xl text-center bg-gradient-to-b ${podiumColors[trueRank - 1]} ${i === 1 ? 'shadow-xl scale-105' : 'shadow-md opacity-90'}`}
                                         >
                                             <Medal size={20} className="mb-2" />
                                             <span className="text-2xl font-black">#{trueRank}</span>
@@ -101,11 +93,10 @@ export default function Leaderboard() {
                             {data.map((item, index) => (
                                 <motion.div
                                     key={item.keyword}
-                                    onClick={() => handleTrendClick(item.keyword)}
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className="flex items-center gap-4 px-6 py-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                    className="flex items-center gap-4 px-6 py-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                                 >
                                     <span className={`text-lg font-black w-8 text-center ${
                                         index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-500' : 'text-gray-500'
